@@ -1,0 +1,25 @@
+{
+    "name": "@mida-agent/admin",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite --host 0.0.0.0 --port 7333",
+        "build": "tsc -b && vite build",
+        "preview": "vite preview --host 0.0.0.0 --port 7333",
+        "typecheck": "tsc -b --noEmit",
+        "lint": "eslint ."
+    },
+    "dependencies": {
+        "@vitejs/plugin-react": "^5.2.0",
+        "lucide-react": "^0.577.0",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1",
+        "vite": "^7.3.1"
+    },
+    "devDependencies": {
+        "@types/react": "^18.3.0",
+        "@types/react-dom": "^18.3.0",
+        "typescript": "~5.9.3"
+    }
+}

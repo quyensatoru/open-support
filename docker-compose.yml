@@ -1,0 +1,22 @@
+services:
+    postgres:
+        image: postgres:16-alpine
+        container_name: mida-agent-postgres
+        restart: unless-stopped
+        environment:
+            POSTGRES_DB: mida_agent
+            POSTGRES_USER: mida_agent
+            POSTGRES_PASSWORD: mida_agent
+        ports:
+            - '5432:5432'
+        volumes:
+            - mida_agent_postgres_data:/var/lib/postgresql/data
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -U mida_agent -d mida_agent']
+            interval: 5s
+            timeout: 5s
+            retries: 10
+            start_period: 5s
+
+volumes:
+    mida_agent_postgres_data:
