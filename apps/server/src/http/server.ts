@@ -2,7 +2,6 @@ import Fastify from 'fastify';
 import type { FastifyInstance } from 'fastify';
 
 import { env } from '../env.js';
-import { registerDatabase } from '../storage/postgres/plugin.js';
 import { registerRoutes } from './routes.js';
 
 function getStatusCode(error: unknown): number {
@@ -43,7 +42,6 @@ export async function buildServer(): Promise<FastifyInstance> {
         });
     });
 
-    await registerDatabase(app);
     await registerRoutes(app);
     return app;
 }

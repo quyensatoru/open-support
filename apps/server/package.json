@@ -16,13 +16,15 @@
         "@langchain/core": "^1.0.0",
         "@langchain/langgraph": "^1.1.5",
         "@langchain/openai": "^1.0.0",
+        "@mida-agent/config": "workspace:*",
         "@modelcontextprotocol/sdk": "^1.28.0",
         "dotenv": "^17.3.1",
+        "drizzle-orm": "^0.45.2",
         "fastify": "^5.6.0",
         "langchain": "^1.0.0",
         "pg": "^8.13.1",
-        "playwright": "^1.60.0",
         "pino": "^10.1.0",
+        "playwright": "^1.60.0",
         "zod": "^4.2.0"
     },
     "devDependencies": {
