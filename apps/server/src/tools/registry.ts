@@ -3,24 +3,12 @@ import { z } from 'zod';
 
 import type { ToolDefinition } from '../http/contracts.js';
 import { getPlaywrightDefaults } from '../playwright/config.js';
-import { searchWebWithBrowser } from '../playwright/search.js';
 
 export const currentTimeTool = tool(async () => new Date().toISOString(), {
     name: 'time.now',
     description: 'Return the current server time as an ISO timestamp.',
     schema: z.object({}),
 });
-
-export const browserSearchTool = tool(
-    async ({ query }) => JSON.stringify(await searchWebWithBrowser(query), null, 2),
-    {
-        name: 'browser.search_web',
-        description: 'Search the web through a real browser session powered by Playwright.',
-        schema: z.object({
-            query: z.string().min(1).describe('Search query to run in the browser.'),
-        }),
-    },
-);
 
 const TOOL_DEFINITIONS: ToolDefinition[] = [
     {
@@ -35,6 +23,27 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
         name: 'Browser web search',
         description: `Playwright-powered web search tool; headless=${getPlaywrightDefaults().headless}.`,
         enabled: false,
+        source: 'playwright',
+    },
+    {
+        id: 'browser.detect',
+        name: 'Browser detect',
+        description: 'Collect DOM, network, script, console, and global browser signals for a website.',
+        enabled: true,
+        source: 'playwright',
+    },
+    {
+        id: 'system.grep',
+        name: 'Signal grep',
+        description: 'Search browser signal logs by run id and keyword.',
+        enabled: true,
+        source: 'local',
+    },
+    {
+        id: 'browser.diagnose',
+        name: 'Browser diagnose',
+        description: `Open a website with Playwright and return response diagnostics; headless=${getPlaywrightDefaults().headless}.`,
+        enabled: true,
         source: 'playwright',
     },
     {

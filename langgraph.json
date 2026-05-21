@@ -1,7 +1,8 @@
 {
     "node_version": "20",
     "graphs": {
-        "agent": "./apps/server/src/graph/graph.ts:graph"
+        "agent": "./apps/server/src/graph/graph.ts:graph",
+        "browser_diagnose": "./apps/server/src/graph/brower-diagnose.graph.ts:graph"
     },
     "env": ".env"
 }

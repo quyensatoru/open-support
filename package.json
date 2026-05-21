@@ -9,8 +9,8 @@
         "node": ">=20"
     },
     "scripts": {
-        "dev": "turbo dev --parallel",
-        "dev:server": "pnpm --filter @mida-agent/server dev",
+        "dev": "turbo dev",
+        "dev:server": "pnpm --filter @mida-agent/config build && pnpm --filter @mida-agent/server dev",
         "dev:admin": "pnpm --filter @mida-agent/admin dev",
         "build": "turbo build",
         "typecheck": "turbo typecheck",

@@ -7,7 +7,7 @@ if (process.env.NODE_ENV !== 'test') {
 
 export { EnvSchema, type Env };
 
-function loadEnv(input: NodeJS.ProcessEnv = process.env): Env {
+export function loadEnv(input: NodeJS.ProcessEnv = process.env): Env {
     return parseEnv(input);
 }
 
