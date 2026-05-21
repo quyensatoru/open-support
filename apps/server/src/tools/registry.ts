@@ -28,7 +28,8 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
     {
         id: 'browser.detect',
         name: 'Browser detect',
-        description: 'Collect DOM, network, script, console, and global browser signals for a website.',
+        description:
+            'Collect DOM, network, script, console, and global browser signals for a website.',
         enabled: true,
         source: 'playwright',
     },

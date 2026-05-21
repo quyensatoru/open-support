@@ -18,14 +18,14 @@ export const detectSite = tool(
         try {
             const engine = metadata?.engine ?? BrowserEngine.Chromium;
             const device = metadata?.device ?? BrowserDevice.Desktop;
-            console.log('tools: ', tools)
+            console.log('tools: ', tools);
             const signals = await crawlerBrowser({
                 url,
                 tools,
                 engine,
                 device,
             });
-            console.log("signals: ", signals)
+            console.log('signals: ', signals);
             const debugDir = path.join(process.cwd(), '.debug');
             const filePath = path.join(debugDir, `${runId}.log`);
 
@@ -39,7 +39,7 @@ export const detectSite = tool(
                 filePath,
                 url,
                 signalCount: signals.length,
-            }
+            };
         } catch (e: unknown) {
             if (e instanceof Error) {
                 logger.error(e.message);
@@ -50,8 +50,8 @@ export const detectSite = tool(
         return {
             ok: false,
             runId,
-            url
-        }
+            url,
+        };
     },
     {
         name: 'browser.detect',

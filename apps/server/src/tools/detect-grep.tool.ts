@@ -19,9 +19,7 @@ function buildPatterns(hint: string) {
         raw.replace(/\s+/g, '_'),
     ].filter(Boolean);
 
-    return [...new Set(variants)].map(
-        value => new RegExp(escapeRegExp(value), 'i'),
-    );
+    return [...new Set(variants)].map((value) => new RegExp(escapeRegExp(value), 'i'));
 }
 
 export const detectSite = tool(
@@ -31,21 +29,21 @@ export const detectSite = tool(
 
             if (!fs.existsSync(filePath)) {
                 return {
-                    ok: false
-                }
+                    ok: false,
+                };
             }
 
             const lines = fs.readFileSync(filePath, 'utf-8').split(/\r?\n/);
 
             let matches: string[] = [];
-            keywords.forEach(k => {
+            keywords.forEach((k) => {
                 const patterns = buildPatterns(k);
 
                 const matched = lines
-                    .filter(line => patterns.some(pattern => pattern.test(line)))
-                    .slice(0, 50)
-                matches.push(...matched)
-            })
+                    .filter((line) => patterns.some((pattern) => pattern.test(line)))
+                    .slice(0, 50);
+                matches.push(...matched);
+            });
 
             return {
                 ok: true,
@@ -53,8 +51,7 @@ export const detectSite = tool(
                 keywords,
                 matchCount: matches.length,
                 matches: matches,
-            }
-
+            };
         } catch (e: unknown) {
             if (e instanceof Error) {
                 logger.error(e.message);
@@ -68,7 +65,7 @@ export const detectSite = tool(
             keywords,
             matchCount: 0,
             matches: [],
-        }
+        };
     },
     {
         name: 'system.grep',
@@ -76,5 +73,5 @@ export const detectSite = tool(
             runId: z.string().describe('Run id returned by browser.detect'),
             keywords: z.array(z.string()).describe('keywords about script on website'),
         }),
-    }
+    },
 );

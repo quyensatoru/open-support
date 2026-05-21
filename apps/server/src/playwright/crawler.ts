@@ -13,9 +13,14 @@ export type CrawlerOption = {
     url: string;
     engine?: BrowserEngine;
     device?: BrowserDevice;
-    tools: Array<BrowseDevtool>
-}
-export async function crawlerBrowser({ url, engine = BrowserEngine.Chromium, device = BrowserDevice.Desktop, tools}: CrawlerOption): Promise<Array<string>> {
+    tools: Array<BrowseDevtool>;
+};
+export async function crawlerBrowser({
+    url,
+    engine = BrowserEngine.Chromium,
+    device = BrowserDevice.Desktop,
+    tools,
+}: CrawlerOption): Promise<Array<string>> {
     const defaults = getPlaywrightDefaults();
     let browser;
     try {
@@ -42,70 +47,75 @@ export async function crawlerBrowser({ url, engine = BrowserEngine.Chromium, dev
 
         tools.forEach((tool) => {
             if (tool === BrowseDevtool.Console) {
-                page.on("console", msg => {
+                page.on('console', (msg) => {
                     signals.push(`[console:${msg.type()}] ${msg.text()}`);
                 });
             }
 
-            if(tool === BrowseDevtool.Network) {
-                page.on("response", res => {
+            if (tool === BrowseDevtool.Network) {
+                page.on('response', (res) => {
                     if (res.status() >= 400) {
                         signals.push(`[failed] [status: ${res.status()}] [url: ${res.url()}]`);
                     }
                 });
 
-                page.on("requestfailed", req => {
-                    signals.push(`[failed] [url: ${req.url()}] [error: ${req.failure()?.errorText}]`);
+                page.on('requestfailed', (req) => {
+                    signals.push(
+                        `[failed] [url: ${req.url()}] [error: ${req.failure()?.errorText}]`,
+                    );
                 });
             }
         });
 
         await page.goto(url, {
-            waitUntil: "networkidle"
+            waitUntil: 'networkidle',
         });
 
         //fix for shopify store dev
         const isShopify = await page.evaluate(() => Boolean((window as any).Shopify));
-        console.log("isShopify: ", isShopify)
+        console.log('isShopify: ', isShopify);
 
-        if(isShopify) {
+        if (isShopify) {
             const passwordInput = page.locator('input[type="password"], input[name="password"]');
 
             if (await passwordInput.count()) {
-                await passwordInput.first().fill("1");
+                await passwordInput.first().fill('1');
 
                 await Promise.all([
-                    page.waitForNavigation({ waitUntil: "networkidle" }).catch(() => null),
-                    page.locator('button[type="submit"], input[type="submit"], button').first().click(),
+                    page.waitForNavigation({ waitUntil: 'networkidle' }).catch(() => null),
+                    page
+                        .locator('button[type="submit"], input[type="submit"], button')
+                        .first()
+                        .click(),
                 ]);
             }
         }
 
-        await page.waitForTimeout(5000)
+        await page.waitForTimeout(5000);
         // await page.waitForURL(url, { waitUntil: "networkidle" });
         const browserData = await page.evaluate(() => {
-            const dom = document.documentElement.outerHTML
+            const dom = document.documentElement.outerHTML;
             return {
-                scripts: [...document.scripts].map(s => `[script] [src: ${s.src}]`),
+                scripts: [...document.scripts].map((s) => `[script] [src: ${s.src}]`),
                 dom: `[dom: ${dom}]`,
                 global: `[window: ${Object.keys(window)}]`,
             };
         });
 
-        console.log("browserData: ", browserData)
+        console.log('browserData: ', browserData);
 
         if (tools.includes(BrowseDevtool.Script)) {
             signals.push(...browserData.scripts);
         }
 
-        if(tools.includes(BrowseDevtool.Dom)) {
-            signals.push(browserData.dom)
+        if (tools.includes(BrowseDevtool.Dom)) {
+            signals.push(browserData.dom);
         }
 
-        if(tools.includes(BrowseDevtool.Global)) {
-            signals.push(browserData.global)
+        if (tools.includes(BrowseDevtool.Global)) {
+            signals.push(browserData.global);
         }
-        return signals
+        return signals;
     } catch (e: unknown) {
         if (e instanceof Error) {
             logger.error(e.message);
@@ -115,5 +125,5 @@ export async function crawlerBrowser({ url, engine = BrowserEngine.Chromium, dev
     } finally {
         browser?.close();
     }
-    throw new Error("relevant not found")
+    throw new Error('relevant not found');
 }

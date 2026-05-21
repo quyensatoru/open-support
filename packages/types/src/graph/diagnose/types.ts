@@ -1,4 +1,4 @@
-import { BrowseDevtool, BrowserDevice, BrowserEngine } from "../../tools/types.js";
+import { BrowseDevtool, BrowserDevice, BrowserEngine } from '../../tools/types.js';
 
 export type BrowserDiagnoseGraphInput = {
     url: string;

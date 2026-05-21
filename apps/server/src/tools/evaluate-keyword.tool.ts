@@ -64,9 +64,9 @@ Rules:
             ]);
 
             const keywords = [...new Set(result.keywords)]
-                .map(k => k.trim())
+                .map((k) => k.trim())
                 .filter(Boolean)
-                .filter(k => !memory.failed.includes(k));
+                .filter((k) => !memory.failed.includes(k));
             return JSON.stringify(
                 {
                     ok: true,

@@ -4,7 +4,10 @@ import { BrowseDevtool, BrowserDevice, BrowserEngine } from '../playwright/type.
 import { diagnoseSite } from '../tools/diagnose-site.tool.js';
 import { detectSite as detectBrowserSite } from '../tools/detect-site.tool.js';
 import { detectSite as grepDetectedSite } from '../tools/detect-grep.tool.js';
-import { evaluateKeyword as evaluateKeywordSite, saveMemory } from '../tools/evaluate-keyword.tool.js';
+import {
+    evaluateKeyword as evaluateKeywordSite,
+    saveMemory,
+} from '../tools/evaluate-keyword.tool.js';
 
 const DEFAULT_DETECT_TOOLS = [
     BrowseDevtool.Dom,
@@ -15,7 +18,7 @@ const DEFAULT_DETECT_TOOLS = [
 
 export type BrowserDiagnoseGraphInput = {
     url: string;
-    app: string; 
+    app: string;
     tools?: BrowseDevtool[];
     metadata?: {
         engine?: BrowserEngine;
@@ -24,7 +27,7 @@ export type BrowserDiagnoseGraphInput = {
 };
 
 export type BrowserDetectResult = {
-    ok: boolean
+    ok: boolean;
     runId: string;
     url: string;
     filePath?: string;
@@ -41,7 +44,7 @@ export type EvaluateKeywordResult = {
     keywords: string[];
     app: string;
     memory: DetectMemory;
-}
+};
 
 export type BrowserGrepResult = {
     ok: boolean;
@@ -115,12 +118,12 @@ async function detectNode(state: typeof BrowserDiagnoseState.State) {
 }
 
 async function evaluateNote(state: typeof BrowserDiagnoseState.State) {
-    const app = state.input.app
+    const app = state.input.app;
     try {
         const result = await evaluateKeywordSite.invoke({
-            app
+            app,
         });
-        console.log("evaluate: ", result)
+        console.log('evaluate: ', result);
 
         return { evaluate: result };
     } catch (error) {
@@ -128,7 +131,7 @@ async function evaluateNote(state: typeof BrowserDiagnoseState.State) {
             errors: [`evaluate.keyword failed: ${errorMessage(error)}`],
         };
     } finally {
-        state.attempts = (state.attempts || 0) + 1
+        state.attempts = (state.attempts || 0) + 1;
     }
 }
 
@@ -163,15 +166,15 @@ async function grepNode(state: typeof BrowserDiagnoseState.State) {
 
         saveMemory(state.evaluate.app, {
             failed: [],
-            success: keywords
-        })
+            success: keywords,
+        });
 
         return { grep: result };
     } catch (error) {
         saveMemory(state.evaluate.app, {
             failed: keywords,
-            success: []
-        })
+            success: [],
+        });
         return {
             errors: [`system.grep failed: ${errorMessage(error)}`],
         };
@@ -179,14 +182,13 @@ async function grepNode(state: typeof BrowserDiagnoseState.State) {
 }
 
 function shouldContinue(state: typeof BrowserDiagnoseState.State) {
-  if (state.grep.ok) return 'next';
+    if (state.grep.ok) return 'next';
 
-  // tránh loop vô hạn
-  if (state.attempts >= 5) return 'done';
+    // tránh loop vô hạn
+    if (state.attempts >= 5) return 'done';
 
-  return 'retry';
+    return 'retry';
 }
-
 
 async function diagnoseNode(state: typeof BrowserDiagnoseState.State) {
     try {
@@ -255,7 +257,7 @@ const workflow = new StateGraph(BrowserDiagnoseState)
     .addConditionalEdges('grep_signals', shouldContinue, {
         retry: 'evaluate_keyword',
         done: END,
-        next: 'diagnose_site'
+        next: 'diagnose_site',
     })
     .addEdge('diagnose_site', 'finalize_output')
     .addEdge('finalize_output', END);

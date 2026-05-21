@@ -6,7 +6,7 @@ export const browserDiagnose = tool(
     async ({ url, app }) => {
         const result = await invokeBrowserDiagnoseGraph({
             url,
-            app
+            app,
         });
 
         return JSON.stringify(result); // agent đọc text
@@ -24,7 +24,7 @@ Use this when user asks about website problems or tracking issues.
 `,
         schema: z.object({
             url: z.string().describe('Website URL to diagnose'),
-            app: z.string().describe('Name app')
+            app: z.string().describe('Name app'),
         }),
-    }
+    },
 );

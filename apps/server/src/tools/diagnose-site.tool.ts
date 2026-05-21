@@ -4,17 +4,15 @@ import { BrowserDevice, BrowserEngine } from '../playwright/type.js';
 import { BrowserDiagnoseResult } from '../graph/brower-diagnose.graph.js';
 
 export const diagnoseSite = tool(
-    async ({ }): Promise<BrowserDiagnoseResult>=> {
+    async ({}): Promise<BrowserDiagnoseResult> => {
         try {
             return {
                 ok: true,
-            }
-        } catch (e) {
-
-        }
+            };
+        } catch (e) {}
         return {
             ok: false,
-        }
+        };
     },
     {
         name: 'browser.diagnose',
