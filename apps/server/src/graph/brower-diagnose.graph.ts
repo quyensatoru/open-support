@@ -87,7 +87,10 @@ const BrowserDiagnoseState = Annotation.Root({
         reducer: (left, right) => left.concat(right),
         default: () => [],
     }),
-    attempts: Annotation<number>(),
+    attempts: Annotation<number>({
+        reducer: (left, right) => left + right,
+        default: () => 0,
+    }),
     output: Annotation<BrowserDiagnoseGraphOutput>(),
 });
 
@@ -123,15 +126,15 @@ async function evaluateNote(state: typeof BrowserDiagnoseState.State) {
         const result = await evaluateKeywordSite.invoke({
             app,
         });
-        console.log('evaluate: ', result);
 
-        return { evaluate: result };
+        console.log("keywords: ", result.keywords)
+
+        return { evaluate: result, attempts: 1 };
     } catch (error) {
         return {
             errors: [`evaluate.keyword failed: ${errorMessage(error)}`],
+            attempts: 1
         };
-    } finally {
-        state.attempts = (state.attempts || 0) + 1;
     }
 }
 
@@ -183,7 +186,7 @@ async function grepNode(state: typeof BrowserDiagnoseState.State) {
 
 function shouldContinue(state: typeof BrowserDiagnoseState.State) {
     if (state.grep.ok) return 'next';
-
+    console.log("state.attempts: ", state.attempts)
     // tránh loop vô hạn
     if (state.attempts >= 5) return 'done';
 
@@ -224,6 +227,10 @@ function finalizeNode(state: typeof BrowserDiagnoseState.State) {
         parts.push(`completed with ${state.errors.length} warning(s)`);
     }
 
+    if(state.grep.matches?.length) {
+        parts.push(`matched: ${state.grep.matches?.join("\n")}`)
+    }
+
     const output: BrowserDiagnoseGraphOutput = {
         url: state.input.url,
         summary: `${parts.join('; ')}.`,
@@ -242,6 +249,7 @@ function finalizeNode(state: typeof BrowserDiagnoseState.State) {
         output.diagnose = state.diagnose;
     }
 
+    console.log(output)
     return { output };
 }
 

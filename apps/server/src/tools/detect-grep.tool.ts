@@ -45,13 +45,15 @@ export const detectSite = tool(
                 matches.push(...matched);
             });
 
-            return {
-                ok: true,
-                runId,
-                keywords,
-                matchCount: matches.length,
-                matches: matches,
-            };
+            if(matches.length) {
+                return {
+                    ok: true,
+                    runId,
+                    keywords,
+                    matchCount: matches.length,
+                    matches: matches,
+                };
+            }
         } catch (e: unknown) {
             if (e instanceof Error) {
                 logger.error(e.message);

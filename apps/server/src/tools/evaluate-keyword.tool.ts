@@ -2,7 +2,7 @@ import { tool } from '@langchain/core/tools';
 import { z } from 'zod';
 import { logger } from '../observability/logger.js';
 import { LlmOpenAI } from '../llm/openai.llm.js';
-import { DetectMemory } from '../graph/brower-diagnose.graph.js';
+import { DetectMemory, EvaluateKeywordResult } from '../graph/brower-diagnose.graph.js';
 
 const DetectHintSchema = z.object({
     keywords: z.array(z.string()).min(1),
@@ -24,9 +24,10 @@ export function saveMemory(app: string, data: DetectMemory) {
 }
 
 export const evaluateKeyword = tool(
-    async ({ app }) => {
+    async ({ app }): Promise<EvaluateKeywordResult> => {
+        const memoryKeyword = getMemory(app);
+        
         try {
-            const memory = getMemory(app);
             const llm = await LlmOpenAI();
 
             const result = await llm.withStructuredOutput(DetectHintSchema).invoke([
@@ -55,7 +56,7 @@ Rules:
                     content: JSON.stringify(
                         {
                             app,
-                            memory: memory,
+                            memory: memoryKeyword,
                         },
                         null,
                         2,
@@ -66,17 +67,13 @@ Rules:
             const keywords = [...new Set(result.keywords)]
                 .map((k) => k.trim())
                 .filter(Boolean)
-                .filter((k) => !memory.failed.includes(k));
-            return JSON.stringify(
-                {
-                    ok: true,
-                    app,
-                    keywords,
-                    memory,
-                },
-                null,
-                2,
-            );
+                .filter((k) => !memoryKeyword.failed.includes(k));
+            return {
+                ok: true,
+                app,
+                keywords,
+                memory: memoryKeyword,
+            }
         } catch (e: unknown) {
             if (e instanceof Error) {
                 logger.error(e.message);
@@ -84,16 +81,13 @@ Rules:
                 logger.error('Failed execute tool');
             }
         }
-        return JSON.stringify(
-            {
-                ok: false,
-                app,
-                keywords: [],
-                memory,
-            },
-            null,
-            2,
-        );
+
+        return {
+            ok: false,
+            app,
+            keywords: [],
+            memory: memoryKeyword,
+        };
     },
     {
         name: 'browser.detect',

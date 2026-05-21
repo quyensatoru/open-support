@@ -18,14 +18,12 @@ export const detectSite = tool(
         try {
             const engine = metadata?.engine ?? BrowserEngine.Chromium;
             const device = metadata?.device ?? BrowserDevice.Desktop;
-            console.log('tools: ', tools);
             const signals = await crawlerBrowser({
                 url,
                 tools,
                 engine,
                 device,
             });
-            console.log('signals: ', signals);
             const debugDir = path.join(process.cwd(), '.debug');
             const filePath = path.join(debugDir, `${runId}.log`);
 

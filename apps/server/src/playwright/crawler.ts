@@ -72,37 +72,30 @@ export async function crawlerBrowser({
         });
 
         //fix for shopify store dev
-        const isShopify = await page.evaluate(() => Boolean((window as any).Shopify));
-        console.log('isShopify: ', isShopify);
 
-        if (isShopify) {
-            const passwordInput = page.locator('input[type="password"], input[name="password"]');
+        const passwordInput = page.locator('input[type="password"], input[name="password"]');
 
-            if (await passwordInput.count()) {
-                await passwordInput.first().fill('1');
+        if (await passwordInput.count()) {
+            await passwordInput.first().fill('1');
 
-                await Promise.all([
-                    page.waitForNavigation({ waitUntil: 'networkidle' }).catch(() => null),
-                    page
-                        .locator('button[type="submit"], input[type="submit"], button')
-                        .first()
-                        .click(),
-                ]);
-            }
+            await Promise.all([
+                page.waitForNavigation({ waitUntil: 'networkidle' }).catch(() => null),
+                page
+                    .locator('button[type="submit"], input[type="submit"], button')
+                    .first()
+                    .click(),
+            ]);
         }
 
-        await page.waitForTimeout(5000);
-        // await page.waitForURL(url, { waitUntil: "networkidle" });
+        await page.waitForURL(url, { waitUntil: "networkidle" });
         const browserData = await page.evaluate(() => {
             const dom = document.documentElement.outerHTML;
             return {
                 scripts: [...document.scripts].map((s) => `[script] [src: ${s.src}]`),
-                dom: `[dom: ${dom}]`,
+                dom: `[dom: ${dom.slice(0, 100000)}]`,
                 global: `[window: ${Object.keys(window)}]`,
             };
         });
-
-        console.log('browserData: ', browserData);
 
         if (tools.includes(BrowseDevtool.Script)) {
             signals.push(...browserData.scripts);
