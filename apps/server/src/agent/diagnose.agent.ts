@@ -1,5 +1,5 @@
 import { LlmOpenAI } from '../llm/openai.llm.js';
-import { browserDiagnose } from '../tools/diagnose-brower.tool.js';
+import { browserDiagnose } from '../tools/browser/diagnose-brower.tool.js';
 import { createAgent, ReactAgent } from 'langchain';
 import { env } from '../env.js';
 

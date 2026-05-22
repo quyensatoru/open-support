@@ -23,4 +23,4 @@ Diagnose a website (Shopify storefront) to detect issues like:
     ],
 });
 
-console.log('result: ', result.messages);
+console.log('result: ', result.messages[0]?.content);

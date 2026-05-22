@@ -1,13 +1,34 @@
 import { Annotation, END, START, StateGraph } from '@langchain/langgraph';
 
 import { BrowseDevtool, BrowserDevice, BrowserEngine } from '../playwright/type.js';
-import { diagnoseSite } from '../tools/diagnose-site.tool.js';
-import { detectSite as detectBrowserSite } from '../tools/detect-site.tool.js';
-import { detectSite as grepDetectedSite } from '../tools/detect-grep.tool.js';
+import { diagnoseSite } from '../tools/browser/diagnose-site.tool.js';
+import { detectSite as detectBrowserSite } from '../tools/browser/detect-site.tool.js';
+import { detectSite as grepDetectedSite } from '../tools/browser/detect-grep.tool.js';
 import {
     evaluateKeyword as evaluateKeywordSite,
-    saveMemory,
-} from '../tools/evaluate-keyword.tool.js';
+} from '../tools/browser/evaluate-keyword.tool.js';
+import type {
+    BrowserDetectResult,
+    BrowserDiagnoseGraphInput,
+    BrowserDiagnoseGraphOutput,
+    BrowserDiagnoseResult,
+    BrowserGrepResult,
+    EvaluateKeywordResult,
+} from './brower-diagnose.types.js';
+
+export { DevtoolKeywordSchema, SignalCount, SignalMatch } from './brower-diagnose.types.js';
+export type {
+    BrowserDetectResult,
+    BrowserDiagnoseGraphInput,
+    BrowserDiagnoseGraphOutput,
+    BrowserDiagnoseResult,
+    BrowserGrepResult,
+    DetectMemory,
+    DevtoolKeywordType,
+    EvaluateKeywordResult,
+    SignalCountType,
+    SignalMatchType,
+} from './brower-diagnose.types.js';
 
 const DEFAULT_DETECT_TOOLS = [
     BrowseDevtool.Dom,
@@ -15,67 +36,6 @@ const DEFAULT_DETECT_TOOLS = [
     BrowseDevtool.Script,
     BrowseDevtool.Console,
 ];
-
-export type BrowserDiagnoseGraphInput = {
-    url: string;
-    app: string;
-    tools?: BrowseDevtool[];
-    metadata?: {
-        engine?: BrowserEngine;
-        device?: BrowserDevice;
-    };
-};
-
-export type BrowserDetectResult = {
-    ok: boolean;
-    runId: string;
-    url: string;
-    filePath?: string;
-    signalCount?: number;
-};
-
-export type DetectMemory = {
-    success: string[];
-    failed: string[];
-};
-
-export type EvaluateKeywordResult = {
-    ok: boolean;
-    keywords: string[];
-    app: string;
-    memory: DetectMemory;
-};
-
-export type BrowserGrepResult = {
-    ok: boolean;
-    runId?: string;
-    keywords?: string[];
-    matchCount?: number;
-    matches?: string[];
-    skipped?: boolean;
-    reason?: string;
-};
-
-export type BrowserDiagnoseResult = {
-    url?: string;
-    finalUrl?: string;
-    engine?: BrowserEngine;
-    device?: BrowserDevice;
-    ok: boolean;
-    status?: number | null;
-    statusText?: string;
-    title?: string;
-    error?: string;
-};
-
-export type BrowserDiagnoseGraphOutput = {
-    url: string;
-    summary: string;
-    detect?: BrowserDetectResult;
-    grep?: BrowserGrepResult;
-    diagnose?: BrowserDiagnoseResult;
-    errors: string[];
-};
 
 const BrowserDiagnoseState = Annotation.Root({
     input: Annotation<BrowserDiagnoseGraphInput>(),
@@ -109,9 +69,10 @@ async function detectNode(state: typeof BrowserDiagnoseState.State) {
     try {
         const result = await detectBrowserSite.invoke({
             url: state.input.url,
-            tools: state.input.tools ?? DEFAULT_DETECT_TOOLS,
+            devtools: state.input.devtools ?? DEFAULT_DETECT_TOOLS,
             metadata: getMetadata(state.input),
         });
+
         return { detect: result };
     } catch (error) {
         return {
@@ -122,12 +83,14 @@ async function detectNode(state: typeof BrowserDiagnoseState.State) {
 
 async function evaluateNote(state: typeof BrowserDiagnoseState.State) {
     const app = state.input.app;
+    const devtools = state.input.devtools ?? DEFAULT_DETECT_TOOLS;
     try {
         const result = await evaluateKeywordSite.invoke({
             app,
+            devtools
         });
 
-        console.log("keywords: ", result.keywords)
+        console.log("evaluate: ", result.byTools)
 
         return { evaluate: result, attempts: 1 };
     } catch (error) {
@@ -139,13 +102,25 @@ async function evaluateNote(state: typeof BrowserDiagnoseState.State) {
 }
 
 async function grepNode(state: typeof BrowserDiagnoseState.State) {
-    const keywords = state.evaluate.keywords;
-    if (!keywords?.length) {
+    if (!state.evaluate.ok) {
         return {
             grep: {
                 ok: false,
                 skipped: true,
-                reason: 'No keyword founded.',
+                reason: 'evaluate keyword not found',
+            },
+        }
+    }
+
+    const keywordsByDevtool = state.evaluate.byTools;
+    const devtools = state.input.devtools || DEFAULT_DETECT_TOOLS;
+
+    if (!keywordsByDevtool || !Object.values(keywordsByDevtool).length) {
+        return {
+            grep: {
+                ok: false,
+                skipped: true,
+                reason: 'No keyword for each devtool type not found.',
             },
         };
     }
@@ -164,20 +139,12 @@ async function grepNode(state: typeof BrowserDiagnoseState.State) {
     try {
         const result = await grepDetectedSite.invoke({
             runId: state.detect.runId,
-            keywords: keywords,
-        });
-
-        saveMemory(state.evaluate.app, {
-            failed: [],
-            success: keywords,
+            keywordsByDevtool,
+            devtools
         });
 
         return { grep: result };
     } catch (error) {
-        saveMemory(state.evaluate.app, {
-            failed: keywords,
-            success: [],
-        });
         return {
             errors: [`system.grep failed: ${errorMessage(error)}`],
         };
@@ -186,7 +153,7 @@ async function grepNode(state: typeof BrowserDiagnoseState.State) {
 
 function shouldContinue(state: typeof BrowserDiagnoseState.State) {
     if (state.grep.ok) return 'next';
-    console.log("state.attempts: ", state.attempts)
+
     // tránh loop vô hạn
     if (state.attempts >= 5) return 'done';
 
@@ -211,12 +178,13 @@ async function diagnoseNode(state: typeof BrowserDiagnoseState.State) {
 function finalizeNode(state: typeof BrowserDiagnoseState.State) {
     const parts = [`Scanned ${state.input.url}`];
 
-    if (typeof state.detect?.signalCount === 'number') {
-        parts.push(`captured ${state.detect.signalCount} browser signals`);
+    if (state.detect?.signalCount) {
+        parts.push(`captured ${JSON.stringify(state.detect.signalCount, null, 2)} browser signals`);
     }
 
-    if (state.input.app && typeof state.grep?.matchCount === 'number') {
-        parts.push(`found ${state.grep.matchCount} matches for app "${state.input.app}"`);
+    if (state.input.app && state.grep.matches) {
+        console.log(state.grep.matches);
+        parts.push(`found ${JSON.stringify(state.grep.matches, null, 2)} matches for app "${state.input.app}"`);
     }
 
     if (state.diagnose?.status) {
@@ -227,12 +195,14 @@ function finalizeNode(state: typeof BrowserDiagnoseState.State) {
         parts.push(`completed with ${state.errors.length} warning(s)`);
     }
 
-    if(state.grep.matches?.length) {
-        parts.push(`matched: ${state.grep.matches?.join("\n")}`)
+    if (state.grep.matches) {
+        parts.push(`matched: ${JSON.stringify(state.grep.matches, null, 2)}`)
     }
 
     const output: BrowserDiagnoseGraphOutput = {
         url: state.input.url,
+        app: state.input.app,
+        devtools: state.input.devtools || DEFAULT_DETECT_TOOLS,
         summary: `${parts.join('; ')}.`,
         errors: state.errors,
     };

@@ -1,6 +1,6 @@
 import { tool } from '@langchain/core/tools';
 import { z } from 'zod';
-import { invokeBrowserDiagnoseGraph } from '../graph/brower-diagnose.graph.js';
+import { invokeBrowserDiagnoseGraph } from '../../graph/brower-diagnose.graph.js';
 
 export const browserDiagnose = tool(
     async ({ url, app }) => {

@@ -1,6 +1,7 @@
 import { getPlaywrightDefaults } from './config.js';
 import { BrowseDevtool, BrowserDevice, BrowserEngine } from './type.js';
 import { logger } from '../observability/logger.js';
+import type { DevtoolKeywordType, DomSignalType, StructuredSignalType } from '../graph/brower-diagnose.types.js';
 
 export type BrowserSearchResult = {
     query: string;
@@ -13,14 +14,15 @@ export type CrawlerOption = {
     url: string;
     engine?: BrowserEngine;
     device?: BrowserDevice;
-    tools: Array<BrowseDevtool>;
+    devtools: Array<BrowseDevtool>;
 };
+
 export async function crawlerBrowser({
     url,
     engine = BrowserEngine.Chromium,
     device = BrowserDevice.Desktop,
-    tools,
-}: CrawlerOption): Promise<Array<string>> {
+    devtools,
+}: CrawlerOption): Promise<StructuredSignalType> {
     const defaults = getPlaywrightDefaults();
     let browser;
     try {
@@ -43,26 +45,33 @@ export async function crawlerBrowser({
 
         const page = await context.newPage();
 
-        const signals: string[] = [];
+        const signals: StructuredSignalType = {};
 
-        tools.forEach((tool) => {
+        devtools.forEach((tool) => {
             if (tool === BrowseDevtool.Console) {
                 page.on('console', (msg) => {
-                    signals.push(`[console:${msg.type()}] ${msg.text()}`);
+                    if (!signals.console) {
+                        signals.console = []
+                    }
+                    signals.console.push(`${msg.type()} ${msg.text()}`)
                 });
             }
 
             if (tool === BrowseDevtool.Network) {
                 page.on('response', (res) => {
                     if (res.status() >= 400) {
-                        signals.push(`[failed] [status: ${res.status()}] [url: ${res.url()}]`);
+                        if (!signals.network) {
+                            signals.network = []
+                        }
+                        signals.network.push(`[response] [status: ${res.status()}] [url: ${res.url()}]`)
                     }
                 });
 
                 page.on('requestfailed', (req) => {
-                    signals.push(
-                        `[failed] [url: ${req.url()}] [error: ${req.failure()?.errorText}]`,
-                    );
+                    if (!signals.network) {
+                        signals.network = []
+                    }
+                    signals.network.push(`[request] [url: ${req.url()}] [error: ${req.failure()?.errorText}]`)
                 });
             }
         });
@@ -91,22 +100,47 @@ export async function crawlerBrowser({
         const browserData = await page.evaluate(() => {
             const dom = document.documentElement.outerHTML;
             return {
-                scripts: [...document.scripts].map((s) => `[script] [src: ${s.src}]`),
-                dom: `[dom: ${dom.slice(0, 100000)}]`,
+                scripts: [...document.scripts].map((s) => `[script] [${s.src}] [${s.textContent}]`),
+                dom: `[dom: ${dom}]`,
                 global: `[window: ${Object.keys(window)}]`,
             };
         });
 
-        if (tools.includes(BrowseDevtool.Script)) {
-            signals.push(...browserData.scripts);
+        const dom: DomSignalType =  await page.$$eval('*', (nodes) =>
+            nodes.map((el) => {
+                const attrs = Array.from(el.attributes)
+                    .map((a) => `${a.name}="${a.value}"`)
+                    .join(' ');
+
+                const text = el.textContent?.trim().replace(/\s+/g, ' ');
+
+                return {
+                    tag: el.tagName.toLowerCase(),
+                    id: el.id || undefined,
+                    className: typeof el.className === 'string' ? el.className : undefined,
+                    attrs,
+                    text,
+                    html: el.outerHTML,
+                };
+            }),
+        );
+
+        if (devtools.includes(BrowseDevtool.Script)) {
+            if (!signals.script) {
+                signals.script = []
+            }
+            signals.script.push(...browserData.scripts);
         }
 
-        if (tools.includes(BrowseDevtool.Dom)) {
-            signals.push(browserData.dom);
+        if (devtools.includes(BrowseDevtool.Dom)) {
+            signals.dom = dom;
         }
 
-        if (tools.includes(BrowseDevtool.Global)) {
-            signals.push(browserData.global);
+        if (devtools.includes(BrowseDevtool.Global)) {
+            if (!signals.global) {
+                signals.global = []
+            }
+            signals.global.push(browserData.global);
         }
         return signals;
     } catch (e: unknown) {
