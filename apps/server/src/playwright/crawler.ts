@@ -1,7 +1,7 @@
 import { getPlaywrightDefaults } from './config.js';
 import { BrowseDevtool, BrowserDevice, BrowserEngine } from './type.js';
 import { logger } from '../observability/logger.js';
-import type { DevtoolKeywordType, DomSignalType, StructuredSignalType } from '../graph/brower-diagnose.types.js';
+import type { DomSignalType, StructuredSignalType } from '../graph/browser/diagnose.types.js';
 
 export type BrowserSearchResult = {
     query: string;
@@ -51,9 +51,9 @@ export async function crawlerBrowser({
             if (tool === BrowseDevtool.Console) {
                 page.on('console', (msg) => {
                     if (!signals.console) {
-                        signals.console = []
+                        signals.console = [];
                     }
-                    signals.console.push(`${msg.type()} ${msg.text()}`)
+                    signals.console.push(`${msg.type()} ${msg.text()}`);
                 });
             }
 
@@ -61,17 +61,21 @@ export async function crawlerBrowser({
                 page.on('response', (res) => {
                     if (res.status() >= 400) {
                         if (!signals.network) {
-                            signals.network = []
+                            signals.network = [];
                         }
-                        signals.network.push(`[response] [status: ${res.status()}] [url: ${res.url()}]`)
+                        signals.network.push(
+                            `[response] [status: ${res.status()}] [url: ${res.url()}]`,
+                        );
                     }
                 });
 
                 page.on('requestfailed', (req) => {
                     if (!signals.network) {
-                        signals.network = []
+                        signals.network = [];
                     }
-                    signals.network.push(`[request] [url: ${req.url()}] [error: ${req.failure()?.errorText}]`)
+                    signals.network.push(
+                        `[request] [url: ${req.url()}] [error: ${req.failure()?.errorText}]`,
+                    );
                 });
             }
         });
@@ -89,14 +93,11 @@ export async function crawlerBrowser({
 
             await Promise.all([
                 page.waitForNavigation({ waitUntil: 'networkidle' }).catch(() => null),
-                page
-                    .locator('button[type="submit"], input[type="submit"], button')
-                    .first()
-                    .click(),
+                page.locator('button[type="submit"], input[type="submit"], button').first().click(),
             ]);
         }
 
-        await page.waitForURL(url, { waitUntil: "networkidle" });
+        await page.waitForURL(url, { waitUntil: 'networkidle' });
         const browserData = await page.evaluate(() => {
             const dom = document.documentElement.outerHTML;
             return {
@@ -106,7 +107,7 @@ export async function crawlerBrowser({
             };
         });
 
-        const dom: DomSignalType =  await page.$$eval('*', (nodes) =>
+        const dom: DomSignalType = await page.$$eval('*', (nodes) =>
             nodes.map((el) => {
                 const attrs = Array.from(el.attributes)
                     .map((a) => `${a.name}="${a.value}"`)
@@ -127,7 +128,7 @@ export async function crawlerBrowser({
 
         if (devtools.includes(BrowseDevtool.Script)) {
             if (!signals.script) {
-                signals.script = []
+                signals.script = [];
             }
             signals.script.push(...browserData.scripts);
         }
@@ -138,7 +139,7 @@ export async function crawlerBrowser({
 
         if (devtools.includes(BrowseDevtool.Global)) {
             if (!signals.global) {
-                signals.global = []
+                signals.global = [];
             }
             signals.global.push(browserData.global);
         }

@@ -6,7 +6,10 @@ import { crawlerBrowser } from '../../playwright/crawler.js';
 import * as path from 'path';
 import * as fs from 'fs';
 import { BrowserDevice, BrowserEngine } from '../../playwright/type.js';
-import type { BrowserDetectResult, DevtoolKeywordType } from '../../graph/brower-diagnose.types.js';
+import type {
+    BrowserDetectResult,
+    DevtoolKeywordType,
+} from '../../graph/browser/diagnose.graph.js';
 
 function createRunId() {
     return `scan_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
@@ -40,8 +43,8 @@ export const detectSite = tool(
                     (Object.keys(signals) as Array<keyof DevtoolKeywordType>).map((key) => [
                         key,
                         signals[key]?.length || 0,
-                    ])
-                )
+                    ]),
+                ),
             };
         } catch (e: unknown) {
             if (e instanceof Error) {

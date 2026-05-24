@@ -6,6 +6,7 @@ export const DEFAULT_OPENAI_MODEL = 'gpt-4.1-mini';
 export const DEFAULT_POSTGRES_POOL_MAX = 10;
 export const DEFAULT_POSTGRES_CONNECTION_TIMEOUT_MS = 5_000;
 export const DEFAULT_POSTGRES_IDLE_TIMEOUT_MS = 30_000;
+export const DEFAULT_WORKSPACE = 'workspace';
 
 export const ENV_KEYS = {
     port: 'PORT',
@@ -56,6 +57,10 @@ export const EnvSchema = z.object({
     DATABASE_MIGRATE_ON_START: booleanFromEnv(false),
     LANGSMITH_TRACING: booleanFromEnv(false),
     PLAYWRIGHT_HEADLESS: booleanFromEnv(true),
+    GITLAB_TOKEN: z.string().default(''),
+    GITLAB_USERNAME: z.string().default(''),
+    GITLAB_HOST: z.string().default(''),
+    WORKSPACE: z.string().default(DEFAULT_WORKSPACE),
     LOG_LEVEL: z
         .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
         .default('info'),

@@ -13,6 +13,7 @@
         "lint": "eslint ."
     },
     "dependencies": {
+        "@gitbeaker/core": "^43.8.0",
         "@langchain/core": "^1.0.0",
         "@langchain/langgraph": "^1.1.5",
         "@langchain/openai": "^1.0.0",
@@ -26,6 +27,7 @@
         "pg": "^8.13.1",
         "pino": "^10.1.0",
         "playwright": "^1.60.0",
+        "simple-git": "^3.36.0",
         "zod": "^4.2.0"
     },
     "devDependencies": {

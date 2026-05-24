@@ -1,12 +1,10 @@
 import { Annotation, END, START, StateGraph } from '@langchain/langgraph';
 
-import { BrowseDevtool, BrowserDevice, BrowserEngine } from '../playwright/type.js';
-import { diagnoseSite } from '../tools/browser/diagnose-site.tool.js';
-import { detectSite as detectBrowserSite } from '../tools/browser/detect-site.tool.js';
-import { detectSite as grepDetectedSite } from '../tools/browser/detect-grep.tool.js';
-import {
-    evaluateKeyword as evaluateKeywordSite,
-} from '../tools/browser/evaluate-keyword.tool.js';
+import { BrowseDevtool, BrowserDevice, BrowserEngine } from '../../playwright/type.js';
+import { diagnoseSite } from '../../tools/browser/diagnose-site.tool.js';
+import { detectSite as detectBrowserSite } from '../../tools/browser/detect-site.tool.js';
+import { detectSite as grepDetectedSite } from '../../tools/browser/detect-grep.tool.js';
+import { evaluateKeyword as evaluateKeywordSite } from '../../tools/browser/evaluate-keyword.tool.js';
 import type {
     BrowserDetectResult,
     BrowserDiagnoseGraphInput,
@@ -14,9 +12,9 @@ import type {
     BrowserDiagnoseResult,
     BrowserGrepResult,
     EvaluateKeywordResult,
-} from './brower-diagnose.types.js';
+} from './diagnose.types.js';
 
-export { DevtoolKeywordSchema, SignalCount, SignalMatch } from './brower-diagnose.types.js';
+export { DevtoolKeywordSchema, SignalCount, SignalMatch } from './diagnose.types.js';
 export type {
     BrowserDetectResult,
     BrowserDiagnoseGraphInput,
@@ -28,7 +26,7 @@ export type {
     EvaluateKeywordResult,
     SignalCountType,
     SignalMatchType,
-} from './brower-diagnose.types.js';
+} from './diagnose.types.js';
 
 const DEFAULT_DETECT_TOOLS = [
     BrowseDevtool.Dom,
@@ -87,16 +85,16 @@ async function evaluateNote(state: typeof BrowserDiagnoseState.State) {
     try {
         const result = await evaluateKeywordSite.invoke({
             app,
-            devtools
+            devtools,
         });
 
-        console.log("evaluate: ", result.byTools)
+        console.log('evaluate: ', result.byTools);
 
         return { evaluate: result, attempts: 1 };
     } catch (error) {
         return {
             errors: [`evaluate.keyword failed: ${errorMessage(error)}`],
-            attempts: 1
+            attempts: 1,
         };
     }
 }
@@ -109,7 +107,7 @@ async function grepNode(state: typeof BrowserDiagnoseState.State) {
                 skipped: true,
                 reason: 'evaluate keyword not found',
             },
-        }
+        };
     }
 
     const keywordsByDevtool = state.evaluate.byTools;
@@ -140,7 +138,7 @@ async function grepNode(state: typeof BrowserDiagnoseState.State) {
         const result = await grepDetectedSite.invoke({
             runId: state.detect.runId,
             keywordsByDevtool,
-            devtools
+            devtools,
         });
 
         return { grep: result };
@@ -184,7 +182,9 @@ function finalizeNode(state: typeof BrowserDiagnoseState.State) {
 
     if (state.input.app && state.grep.matches) {
         console.log(state.grep.matches);
-        parts.push(`found ${JSON.stringify(state.grep.matches, null, 2)} matches for app "${state.input.app}"`);
+        parts.push(
+            `found ${JSON.stringify(state.grep.matches, null, 2)} matches for app "${state.input.app}"`,
+        );
     }
 
     if (state.diagnose?.status) {
@@ -196,7 +196,7 @@ function finalizeNode(state: typeof BrowserDiagnoseState.State) {
     }
 
     if (state.grep.matches) {
-        parts.push(`matched: ${JSON.stringify(state.grep.matches, null, 2)}`)
+        parts.push(`matched: ${JSON.stringify(state.grep.matches, null, 2)}`);
     }
 
     const output: BrowserDiagnoseGraphOutput = {
@@ -219,7 +219,7 @@ function finalizeNode(state: typeof BrowserDiagnoseState.State) {
         output.diagnose = state.diagnose;
     }
 
-    console.log(output)
+    console.log(output);
     return { output };
 }
 

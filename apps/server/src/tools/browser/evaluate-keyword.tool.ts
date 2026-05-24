@@ -2,7 +2,11 @@ import { tool } from '@langchain/core/tools';
 import { nativeEnum, z } from 'zod';
 import { logger } from '../../observability/logger.js';
 import { LlmOpenAI } from '../../llm/openai.llm.js';
-import { DevtoolKeywordSchema, type DetectMemory, type EvaluateKeywordResult } from '../../graph/brower-diagnose.types.js';
+import {
+    DevtoolKeywordSchema,
+    type DetectMemory,
+    type EvaluateKeywordResult,
+} from '../../graph/browser/diagnose.graph.js';
 import { BrowseDevtool } from '../../playwright/type.js';
 
 const DetectkeywordSchema = z.object({
@@ -49,12 +53,12 @@ Rules:
 - Avoid memory.failed, reuse memory.success if relevant.
 - Include every devtool key in byTools.
 - Return empty arrays for devtools that were not requested.
-`
+`;
 
 export const evaluateKeyword = tool(
     async ({ app, devtools }): Promise<EvaluateKeywordResult> => {
         const memoryKeyword = getMemory(app);
-        
+
         try {
             const llm = await LlmOpenAI();
 
@@ -69,14 +73,14 @@ export const evaluateKeyword = tool(
                         {
                             app,
                             memory: memoryKeyword,
-                            devtools
+                            devtools,
                         },
                         null,
                         2,
                     ),
                 },
             ]);
-            console.log("result: ", result)
+            console.log('result: ', result);
 
             return {
                 ok: true,
@@ -84,7 +88,7 @@ export const evaluateKeyword = tool(
                 keywords: result.keywords,
                 byTools: result.byTools,
                 memory: memoryKeyword,
-            }
+            };
         } catch (e: unknown) {
             if (e instanceof Error) {
                 logger.error(e.message);
@@ -105,7 +109,7 @@ export const evaluateKeyword = tool(
         description: 'Crawl a website in Playwright and persist browser signals to a debug log.',
         schema: z.object({
             app: z.string().describe('App name'),
-            devtools: z.array(nativeEnum(BrowseDevtool))
+            devtools: z.array(nativeEnum(BrowseDevtool)),
         }),
     },
 );

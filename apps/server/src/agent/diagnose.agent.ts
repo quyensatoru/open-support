@@ -10,7 +10,7 @@ const tools = [browserDiagnose];
 export const diagnoseAgent = async (): Promise<ReactAgent> => {
     if (agent) return agent;
 
-    const llm = await LlmOpenAI();
+    await LlmOpenAI();
 
     agent = createAgent({
         model: env.OPENAI_MODEL,

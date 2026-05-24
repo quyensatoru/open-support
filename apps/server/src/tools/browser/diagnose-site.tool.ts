@@ -1,17 +1,12 @@
 import { tool } from '@langchain/core/tools';
 import { z } from 'zod';
 import { BrowserDevice, BrowserEngine } from '../../playwright/type.js';
-import type { BrowserDiagnoseResult } from '../../graph/brower-diagnose.types.js';
+import type { BrowserDiagnoseResult } from '../../graph/browser/diagnose.graph.js';
 
 export const diagnoseSite = tool(
-    async ({}): Promise<BrowserDiagnoseResult> => {
-        try {
-            return {
-                ok: true,
-            };
-        } catch (e) {}
+    async (): Promise<BrowserDiagnoseResult> => {
         return {
-            ok: false,
+            ok: true,
         };
     },
     {

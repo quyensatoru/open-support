@@ -3,8 +3,13 @@ import { z } from 'zod';
 import fs from 'fs';
 import { logger } from '../../observability/logger.js';
 import path from 'path';
-import { DevtoolKeywordSchema } from '../../graph/brower-diagnose.types.js';
-import type { BrowserGrepResult, DevtoolKeywordType, DomSignalType, SignalMatchType, StructuredSignalType } from '../../graph/brower-diagnose.types.js';
+import { DevtoolKeywordSchema } from '../../graph/browser/diagnose.graph.js';
+import type {
+    BrowserGrepResult,
+    DomSignalType,
+    SignalMatchType,
+    StructuredSignalType,
+} from '../../graph/browser/diagnose.types.js';
 import { BrowseDevtool } from '../../playwright/type.js';
 
 function escapeRegExp(value: string) {
@@ -36,11 +41,7 @@ function normalizeText(value: unknown): string {
     }
 }
 
-
-function grepDomSignals(
-    domSignals: DomSignalType,
-    patterns: RegExp[],
-) {
+function grepDomSignals(domSignals: DomSignalType, patterns: RegExp[]) {
     return domSignals
         .map((el) => {
             const parts = {
@@ -50,12 +51,7 @@ function grepDomSignals(
                 html: normalizeText(el.html),
             };
 
-            const searchable = [
-                parts.tag,
-                parts.attrs,
-                parts.text,
-                parts.html,
-            ]
+            const searchable = [parts.tag, parts.attrs, parts.text, parts.html]
                 .filter(Boolean)
                 .join(' ');
 
@@ -84,13 +80,13 @@ export const detectSite = tool(
             if (!fs.existsSync(filePath)) {
                 return {
                     ok: false,
-                    reason: "file debug not found"
+                    reason: 'file debug not found',
                 };
             }
 
-            const text = fs.readFileSync(filePath, 'utf-8').toString()
+            const text = fs.readFileSync(filePath, 'utf-8').toString();
 
-            let signal: StructuredSignalType = {}
+            let signal: StructuredSignalType = {};
 
             try {
                 signal = JSON.parse(text);
@@ -117,17 +113,16 @@ export const detectSite = tool(
 
                 const devtoolMatches: string[] = [];
 
-                keywords.forEach(keyword => {
+                keywords.forEach((keyword) => {
                     const patterns = buildPatterns(keyword);
                     if (devtool === BrowseDevtool.Dom) {
-                        const matched = grepDomSignals(sg as DomSignalType, patterns)
+                        const matched = grepDomSignals(sg as DomSignalType, patterns);
                         devtoolMatches.push(...matched);
-
                     } else {
-                        const matched = (sg as string[])
-                            .filter((line) => patterns.some((pattern) => pattern.test(line)))
+                        const matched = (sg as string[]).filter((line) =>
+                            patterns.some((pattern) => pattern.test(line)),
+                        );
                         devtoolMatches.push(...matched);
-
                     }
                 });
 
@@ -165,7 +160,8 @@ export const detectSite = tool(
             runId: z.string().describe('Run id returned by browser.detect'),
             keywordsByDevtool: DevtoolKeywordSchema.describe('keyword about each devtool type'),
             devtools: z
-                .array(z.nativeEnum(BrowseDevtool)).describe("Describe tab must be trace on devtool browser")
+                .array(z.nativeEnum(BrowseDevtool))
+                .describe('Describe tab must be trace on devtool browser'),
         }),
     },
 );

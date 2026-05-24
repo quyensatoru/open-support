@@ -1,5 +1,5 @@
 import { ChatOpenAI, ChatOpenAICallOptions } from '@langchain/openai';
-import { llmSvc } from '../db/index.js';
+// import { llmSvc } from '../db/index.js';
 import { env } from '../env.js';
 
 let openAIChat: ChatOpenAI<ChatOpenAICallOptions> | null;

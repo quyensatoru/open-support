@@ -1,17 +1,19 @@
 import { z } from 'zod';
 
-import { BrowseDevtool, BrowserDevice, BrowserEngine } from '../playwright/type.js';
+import { BrowseDevtool, BrowserDevice, BrowserEngine } from '../../playwright/type.js';
 
 const StringArraySchema = z.array(z.string());
 
-export const DomSignalSchema = z.array(z.object({
-    tag: z.string(),
-    id: z.string().optional(),
-    className: z.string().optional(),
-    attrs: z.string().optional(),
-    text: z.string().optional(),
-    html: z.string().optional(),
-}));
+export const DomSignalSchema = z.array(
+    z.object({
+        tag: z.string(),
+        id: z.string().optional(),
+        className: z.string().optional(),
+        attrs: z.string().optional(),
+        text: z.string().optional(),
+        html: z.string().optional(),
+    }),
+);
 
 export const DevtoolKeywordSchema = z.object({
     [BrowseDevtool.Dom]: StringArraySchema,
@@ -37,10 +39,7 @@ export const StructuredSignalSchema = z.object({
 export const SignalCount = z
     .object(
         Object.fromEntries(
-            Object.values(BrowseDevtool).map((key) => [
-                key,
-                z.number().optional(),
-            ]),
+            Object.values(BrowseDevtool).map((key) => [key, z.number().optional()]),
         ) as Record<BrowseDevtool, z.ZodOptional<z.ZodNumber>>,
     )
     .strict();
@@ -48,10 +47,7 @@ export const SignalCount = z
 export const SignalMatch = z
     .object(
         Object.fromEntries(
-            Object.values(BrowseDevtool).map((key) => [
-                key,
-                z.array(z.string()).optional(),
-            ]),
+            Object.values(BrowseDevtool).map((key) => [key, z.array(z.string()).optional()]),
         ) as Record<BrowseDevtool, z.ZodOptional<z.ZodArray<z.ZodString>>>,
     )
     .strict();
