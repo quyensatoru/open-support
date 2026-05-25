@@ -155,7 +155,7 @@ export const detectSite = tool(
         };
     },
     {
-        name: 'system.grep',
+        name: 'system_grep',
         schema: z.object({
             runId: z.string().describe('Run id returned by browser.detect'),
             keywordsByDevtool: DevtoolKeywordSchema.describe('keyword about each devtool type'),

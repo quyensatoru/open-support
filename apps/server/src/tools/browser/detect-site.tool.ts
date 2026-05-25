@@ -60,7 +60,7 @@ export const detectSite = tool(
         };
     },
     {
-        name: 'browser.detect',
+        name: 'browser_detect',
         description: 'Crawl a website in Playwright and persist browser signals to a debug log.',
         schema: z.object({
             url: z.url().describe('Link website'),

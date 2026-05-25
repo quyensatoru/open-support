@@ -5,7 +5,7 @@ import type { ToolDefinition } from '../http/contracts.js';
 import { getPlaywrightDefaults } from '../playwright/config.js';
 
 export const currentTimeTool = tool(async () => new Date().toISOString(), {
-    name: 'time.now',
+    name: 'time_now',
     description: 'Return the current server time as an ISO timestamp.',
     schema: z.object({}),
 });
@@ -46,6 +46,43 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
         description: `Open a website with Playwright and return response diagnostics; headless=${getPlaywrightDefaults().headless}.`,
         enabled: true,
         source: 'playwright',
+    },
+    {
+        id: 'code.clone_repos',
+        name: 'Code clone repos',
+        description:
+            'Find repositories by app name, interrupt for missing repo URLs, then clone or pull repos into workspace.',
+        enabled: true,
+        source: 'local',
+    },
+    {
+        id: 'code.thinking',
+        name: 'Code thinking',
+        description:
+            'Convert a user issue into file globs, file regexes, and content regexes for code search.',
+        enabled: true,
+        source: 'local',
+    },
+    {
+        id: 'code.grep',
+        name: 'Code grep',
+        description: 'Search cloned repos with fast-glob and regex content matching.',
+        enabled: true,
+        source: 'local',
+    },
+    {
+        id: 'code.context',
+        name: 'Code context',
+        description: 'Read focused snippets around code search matches for fix analysis.',
+        enabled: true,
+        source: 'local',
+    },
+    {
+        id: 'code.insight',
+        name: 'Code insight',
+        description: 'Summarize code search and context into actionable issue insight.',
+        enabled: true,
+        source: 'local',
     },
     {
         id: 'mcp.server.placeholder',

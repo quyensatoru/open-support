@@ -105,7 +105,7 @@ export const evaluateKeyword = tool(
         };
     },
     {
-        name: 'browser.detect',
+        name: 'browser_detect_keyword',
         description: 'Crawl a website in Playwright and persist browser signals to a debug log.',
         schema: z.object({
             app: z.string().describe('App name'),

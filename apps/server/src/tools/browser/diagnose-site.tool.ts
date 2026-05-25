@@ -10,7 +10,7 @@ export const diagnoseSite = tool(
         };
     },
     {
-        name: 'browser.diagnose',
+        name: 'browser_diagnose_site',
         description: 'Open a website in Playwright and return basic response diagnostics.',
         schema: z.object({
             url: z.string().describe('Link website needs diagnose'),
