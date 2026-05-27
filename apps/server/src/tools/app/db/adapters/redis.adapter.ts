@@ -59,7 +59,7 @@ const OPS: Record<RedisOperation, OpHandler> = {
         return [{ key, members: raw }]
     },
 
-    scan: async (client, { key, pattern = "*", count = 20, type: keyType }) => {
+    scan: async (client, { pattern = "*", count = 20, type: keyType }) => {
         const keys: string[] = []
         let cursor = "0"
         const limit = Math.min(count, 200)

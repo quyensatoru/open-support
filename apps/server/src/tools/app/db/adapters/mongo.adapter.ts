@@ -9,7 +9,6 @@ import type {
 export class MongoDBAdapter extends DBAdapter {
     #client!: MongoClient
     #db!: Db
-    #readOnly!: boolean
     #sampleSize!: number
 
     override async connect(config: DBConfig): Promise<void> {
@@ -17,7 +16,6 @@ export class MongoDBAdapter extends DBAdapter {
         this.#client = new MongoClient(cfg.uri, { serverSelectionTimeoutMS: 5_000 })
         await this.#client.connect()
         this.#db = this.#client.db(cfg.db)
-        this.#readOnly = cfg.readOnly ?? true
         this.#sampleSize = cfg.sampleSize ?? 5
     }
 
