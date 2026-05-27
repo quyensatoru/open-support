@@ -85,6 +85,35 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
         source: 'local',
     },
     {
+        id: 'database.schema',
+        name: 'Database schema',
+        description: 'Read schema metadata for connected database sources and focused targets.',
+        enabled: true,
+        source: 'local',
+    },
+    {
+        id: 'database.thinking',
+        name: 'Database thinking',
+        description:
+            'Infer which collections, tables, or keys should be checked for a database issue.',
+        enabled: true,
+        source: 'local',
+    },
+    {
+        id: 'database.execute',
+        name: 'Database execute checks',
+        description: 'Execute read-only database checks and report whether data exists.',
+        enabled: true,
+        source: 'local',
+    },
+    {
+        id: 'database.insight',
+        name: 'Database insight',
+        description: 'Summarize database check results into issue findings and next checks.',
+        enabled: true,
+        source: 'local',
+    },
+    {
         id: 'mcp.server.placeholder',
         name: 'MCP server placeholder',
         description: 'Reserved for future external systems that call into MIDA Agent over MCP.',

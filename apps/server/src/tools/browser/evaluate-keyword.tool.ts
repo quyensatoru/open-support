@@ -55,7 +55,7 @@ Rules:
 - Return empty arrays for devtools that were not requested.
 `;
 
-export const evaluateKeyword = tool(
+export const evaluateKeywordBrowser = tool(
     async ({ app, devtools }): Promise<EvaluateKeywordResult> => {
         const memoryKeyword = getMemory(app);
 

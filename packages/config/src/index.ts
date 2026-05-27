@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const DEFAULT_AGENT_PORT = 7332;
 export const DEFAULT_ADMIN_PORT = 7333;
 export const DEFAULT_OPENAI_MODEL = 'gpt-4.1-mini';
+export const DEFAULT_OPENROUTER_MODEL = 'openai/gpt-oss-120b:free';
 export const DEFAULT_POSTGRES_POOL_MAX = 10;
 export const DEFAULT_POSTGRES_CONNECTION_TIMEOUT_MS = 5_000;
 export const DEFAULT_POSTGRES_IDLE_TIMEOUT_MS = 30_000;
@@ -15,6 +16,8 @@ export const ENV_KEYS = {
     adminOrigin: 'ADMIN_ORIGIN',
     openAiApiKey: 'OPENAI_API_KEY',
     openAiModel: 'OPENAI_MODEL',
+    openRouterApiKey: 'OPENROUTER_API_KEY',
+    openRouterModel: 'OPENROUTER_MODEL',
     databaseUrl: 'DATABASE_URL',
     databaseSsl: 'DATABASE_SSL',
     databasePoolMax: 'DATABASE_POOL_MAX',
@@ -60,6 +63,8 @@ export const EnvSchema = z.object({
     GITLAB_TOKEN: z.string().default(''),
     GITLAB_USERNAME: z.string().default(''),
     GITLAB_HOST: z.string().default(''),
+    OPENROUTER_API_KEY: z.string().default(''),
+    OPENROUTER_MODEL: z.string().default(DEFAULT_OPENROUTER_MODEL),
     WORKSPACE: z.string().default(DEFAULT_WORKSPACE),
     LOG_LEVEL: z
         .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])

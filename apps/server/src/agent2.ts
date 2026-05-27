@@ -52,7 +52,7 @@ async function consumeInterrupt(result: CodeGraphRunResult): Promise<CodeGraphRu
 let result = await invokeCodeGraphStep({
     threadId,
     app: 'mida record',
-    issue: 'T cần tìm ra file name của script inject storefront app mida record',
+    issue: 'detect storefront script liquid',
     mode: 'search',
 });
 

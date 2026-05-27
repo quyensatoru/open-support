@@ -1,10 +1,10 @@
 import { Annotation, END, START, StateGraph } from '@langchain/langgraph';
 
 import { BrowseDevtool, BrowserDevice, BrowserEngine } from '../../playwright/type.js';
-import { diagnoseSite } from '../../tools/browser/diagnose-site.tool.js';
-import { detectSite as detectBrowserSite } from '../../tools/browser/detect-site.tool.js';
-import { detectSite as grepDetectedSite } from '../../tools/browser/detect-grep.tool.js';
-import { evaluateKeyword as evaluateKeywordSite } from '../../tools/browser/evaluate-keyword.tool.js';
+import { diagnoseBrowser } from '../../tools/browser/diagnose-browser.tool.js';
+import { crawlBrower } from '../../tools/browser/crawl-browser.tool.js';
+import { grepBrowser } from '../../tools/browser/grep-browser.tool.js';
+import { evaluateKeywordBrowser } from '../../tools/browser/evaluate-keyword.tool.js';
 import type {
     BrowserDetectResult,
     BrowserDiagnoseGraphInput,
@@ -65,7 +65,7 @@ function errorMessage(error: unknown): string {
 
 async function detectNode(state: typeof BrowserDiagnoseState.State) {
     try {
-        const result = await detectBrowserSite.invoke({
+        const result = await crawlBrower.invoke({
             url: state.input.url,
             devtools: state.input.devtools ?? DEFAULT_DETECT_TOOLS,
             metadata: getMetadata(state.input),
@@ -83,7 +83,7 @@ async function evaluateNote(state: typeof BrowserDiagnoseState.State) {
     const app = state.input.app;
     const devtools = state.input.devtools ?? DEFAULT_DETECT_TOOLS;
     try {
-        const result = await evaluateKeywordSite.invoke({
+        const result = await evaluateKeywordBrowser.invoke({
             app,
             devtools,
         });
@@ -135,7 +135,7 @@ async function grepNode(state: typeof BrowserDiagnoseState.State) {
     }
 
     try {
-        const result = await grepDetectedSite.invoke({
+        const result = await grepBrowser.invoke({
             runId: state.detect.runId,
             keywordsByDevtool,
             devtools,
@@ -160,7 +160,7 @@ function shouldContinue(state: typeof BrowserDiagnoseState.State) {
 
 async function diagnoseNode(state: typeof BrowserDiagnoseState.State) {
     try {
-        const result = await diagnoseSite.invoke({
+        const result = await diagnoseBrowser.invoke({
             url: state.input.url,
             metadata: getMetadata(state.input),
         });

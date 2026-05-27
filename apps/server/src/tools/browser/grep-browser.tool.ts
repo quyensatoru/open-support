@@ -72,7 +72,7 @@ function grepDomSignals(domSignals: DomSignalType, patterns: RegExp[]) {
         .slice(0, 50);
 }
 
-export const detectSite = tool(
+export const grepBrowser = tool(
     async ({ keywordsByDevtool, devtools, runId }): Promise<BrowserGrepResult> => {
         try {
             const filePath = path.join(process.cwd(), '.debug', `${runId}.log`);

@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { BrowserDevice, BrowserEngine } from '../../playwright/type.js';
 import type { BrowserDiagnoseResult } from '../../graph/browser/diagnose.graph.js';
 
-export const diagnoseSite = tool(
+export const diagnoseBrowser = tool(
     async (): Promise<BrowserDiagnoseResult> => {
         return {
             ok: true,

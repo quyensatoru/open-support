@@ -1,11 +1,11 @@
 import { LlmOpenAI } from '../llm/openai.llm.js';
-import { browserDiagnose } from '../tools/browser/diagnose-brower.tool.js';
+import { browserTool } from '../tools/browser/index.js';
 import { createAgent, ReactAgent } from 'langchain';
 import { env } from '../env.js';
 
 let agent: ReactAgent;
 
-const tools = [browserDiagnose];
+const tools = [browserTool];
 
 export const diagnoseAgent = async (): Promise<ReactAgent> => {
     if (agent) return agent;

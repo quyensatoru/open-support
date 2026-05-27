@@ -2,7 +2,7 @@ import { tool } from '@langchain/core/tools';
 import { z } from 'zod';
 import { invokeBrowserDiagnoseGraph } from '../../graph/browser/diagnose.graph.js';
 
-export const browserDiagnose = tool(
+export const browserTool = tool(
     async ({ url, app }) => {
         const result = await invokeBrowserDiagnoseGraph({
             url,

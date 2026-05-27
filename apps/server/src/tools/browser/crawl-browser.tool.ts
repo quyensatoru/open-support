@@ -15,7 +15,7 @@ function createRunId() {
     return `scan_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
-export const detectSite = tool(
+export const crawlBrower = tool(
     async ({ url, devtools, metadata }): Promise<BrowserDetectResult> => {
         const runId = createRunId();
         try {
