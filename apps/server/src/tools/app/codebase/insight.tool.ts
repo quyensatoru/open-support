@@ -7,9 +7,9 @@ import {
     CodeInsightResultSchema,
     CodeSearchPlanSchema,
     type CodeInsightResult,
-} from '../../graph/code/code.type.js';
-import { LlmOpenAI } from '../../llm/openai.llm.js';
-import { logger } from '../../observability/logger.js';
+} from '../../../graph/code/code.type.js';
+import { LlmOpenAI } from '../../../llm/openai.llm.js';
+import { logger } from '../../../observability/logger.js';
 
 const CodeInsightInputSchema = z.object({
     app: z.string().trim().min(1),

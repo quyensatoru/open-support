@@ -6,7 +6,7 @@ import {
     CodeContextResultSchema,
     CodeGrepMatchSchema,
     type CodeContextResult,
-} from '../../graph/code/code.type.js';
+} from '../../../graph/code/code.type.js';
 
 const CodeContextInputSchema = z.object({
     issue: z.string().trim().min(1),

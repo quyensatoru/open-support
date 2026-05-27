@@ -9,7 +9,7 @@ import {
     CodeRepoSchema,
     type CodeGrepMatch,
     type CodeGrepResult,
-} from '../../graph/code/code.type.js';
+} from '../../../graph/code/code.type.js';
 
 const DEFAULT_IGNORES = [
     '**/.git/**',
