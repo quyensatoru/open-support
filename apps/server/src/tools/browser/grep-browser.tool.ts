@@ -3,7 +3,7 @@ import { z } from 'zod';
 import fs from 'fs';
 import { logger } from '../../observability/logger.js';
 import path from 'path';
-import { DevtoolKeywordSchema } from '../../graph/browser/diagnose.graph.js';
+import { DevtoolKeywordSchema } from '../../graph/browser/diagnose.types.js';
 import type {
     BrowserGrepResult,
     DomSignalType,

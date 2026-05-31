@@ -6,7 +6,7 @@ import {
     DevtoolKeywordSchema,
     type DetectMemory,
     type EvaluateKeywordResult,
-} from '../../graph/browser/diagnose.graph.js';
+} from '../../graph/browser/diagnose.types.js';
 import { BrowseDevtool } from '../../playwright/type.js';
 
 const DetectkeywordSchema = z.object({

@@ -4,6 +4,7 @@ export const DEFAULT_AGENT_PORT = 7332;
 export const DEFAULT_ADMIN_PORT = 7333;
 export const DEFAULT_OPENAI_MODEL = 'gpt-4.1-mini';
 export const DEFAULT_OPENROUTER_MODEL = 'openai/gpt-oss-120b:free';
+export const DEFAULT_DEEPSEEK_MODEL = 'deepseek-v4-pro';
 export const DEFAULT_POSTGRES_POOL_MAX = 10;
 export const DEFAULT_POSTGRES_CONNECTION_TIMEOUT_MS = 5_000;
 export const DEFAULT_POSTGRES_IDLE_TIMEOUT_MS = 30_000;
@@ -16,6 +17,7 @@ export const ENV_KEYS = {
     adminOrigin: 'ADMIN_ORIGIN',
     openAiApiKey: 'OPENAI_API_KEY',
     openAiModel: 'OPENAI_MODEL',
+    supportOpenAiModel: 'SUPPORT_OPENAI_MODEL',
     openRouterApiKey: 'OPENROUTER_API_KEY',
     openRouterModel: 'OPENROUTER_MODEL',
     databaseUrl: 'DATABASE_URL',
@@ -52,6 +54,7 @@ export const EnvSchema = z.object({
     ADMIN_ORIGIN: z.string().default(`http://localhost:${DEFAULT_ADMIN_PORT}`),
     OPENAI_API_KEY: z.string().default(''),
     OPENAI_MODEL: z.string().default(DEFAULT_OPENAI_MODEL),
+    SUPPORT_OPENAI_MODEL: z.string().default(''),
     DATABASE_URL: z.string().default(''),
     DATABASE_SSL: booleanFromEnv(false),
     DATABASE_POOL_MAX: numberFromEnv(DEFAULT_POSTGRES_POOL_MAX),
@@ -65,6 +68,8 @@ export const EnvSchema = z.object({
     GITLAB_HOST: z.string().default(''),
     OPENROUTER_API_KEY: z.string().default(''),
     OPENROUTER_MODEL: z.string().default(DEFAULT_OPENROUTER_MODEL),
+    DEEPSEEK_API_KEY: z.string().default(''),
+    DEEPSEEK_MODEL: z.string().default(DEFAULT_DEEPSEEK_MODEL),
     WORKSPACE: z.string().default(DEFAULT_WORKSPACE),
     LOG_LEVEL: z
         .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])

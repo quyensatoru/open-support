@@ -114,6 +114,22 @@ const TOOL_DEFINITIONS: ToolDefinition[] = [
         source: 'local',
     },
     {
+        id: 'support.planning',
+        name: 'Support planning',
+        description:
+            'Create a grounded, generic Shopify embedded app support investigation plan from available evidence.',
+        enabled: true,
+        source: 'local',
+    },
+    {
+        id: 'hypothesis.planning',
+        name: 'Hypothesis planning',
+        description:
+            'Generate concise, testable hypotheses and recommended graph calls for an app issue.',
+        enabled: true,
+        source: 'local',
+    },
+    {
         id: 'mcp.server.placeholder',
         name: 'MCP server placeholder',
         description: 'Reserved for future external systems that call into MIDA Agent over MCP.',

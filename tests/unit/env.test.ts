@@ -11,6 +11,7 @@ describe('env', () => {
         expect(env.ADMIN_PORT).toBe(7333);
         expect(env.OPENAI_API_KEY).toBe('');
         expect(env.OPENAI_MODEL).toBe('gpt-4.1-mini');
+        expect(env.SUPPORT_OPENAI_MODEL).toBe('');
         expect(env.DATABASE_URL).toBe('');
         expect(env.DATABASE_SSL).toBe(false);
         expect(env.DATABASE_POOL_MAX).toBe(10);

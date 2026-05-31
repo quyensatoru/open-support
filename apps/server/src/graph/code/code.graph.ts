@@ -103,12 +103,12 @@ async function thinkingNode(state: typeof CodeState.State) {
     }
 
     try {
-        const result = (await codeThinking.invoke({
+        const result = await codeThinking.invoke({
             app: state.input.app,
             issue: state.input.issue,
             repoNames: state.clone.repos.map((repo) => repo.name),
             mode: state.input.mode,
-        })) as CodeSearchPlan;
+        });
 
         return { thinking: result };
     } catch (error) {

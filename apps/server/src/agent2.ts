@@ -52,8 +52,8 @@ async function consumeInterrupt(result: CodeGraphRunResult): Promise<CodeGraphRu
 let result = await invokeCodeGraphStep({
     threadId,
     app: 'mida record',
-    issue: 'detect storefront script liquid',
-    mode: 'search',
+    issue: 'Cần tìm các luồng code chung cho xem heatmap/recording, feature gates, API và xử lý empty/error state',
+    mode: 'fix',
 });
 
 while (result.status === 'interrupted') {
