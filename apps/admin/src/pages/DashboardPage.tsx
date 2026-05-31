@@ -1,31 +1,17 @@
-import { Activity, Bot, Cpu, Wrench } from 'lucide-react';
+import { Bot, Database, PlugZap } from 'lucide-react';
 
-import type {
-    AgentRun,
-    AgentSettings,
-    HealthResponse,
-    SkillDefinition,
-    ToolDefinition,
-} from '../api/types';
+import type { HealthResponse } from '../api/types';
 
 type DashboardPageProps = {
     health: HealthResponse | null;
-    runs: AgentRun[];
-    tools: ToolDefinition[];
-    skills: SkillDefinition[];
-    settings: AgentSettings | null;
 };
 
-export function DashboardPage({ health, runs, tools, skills, settings }: DashboardPageProps) {
-    const completedRuns = runs.filter((run) => run.status === 'completed').length;
-    const enabledTools = tools.filter((tool) => tool.enabled).length;
-    const enabledSkills = skills.filter((skill) => skill.enabled).length;
-
+export function DashboardPage({ health }: DashboardPageProps) {
     return (
         <section className="page-stack" aria-label="Dashboard">
             <div className="section-heading">
-                <h1>Agent Dashboard</h1>
-                <p>Runtime status and internal agent surface.</p>
+                <h1>Config Runtime</h1>
+                <p>Server and database status for DB-backed config APIs.</p>
             </div>
 
             <div className="metric-grid">
@@ -35,23 +21,14 @@ export function DashboardPage({ health, runs, tools, skills, settings }: Dashboa
                     <strong>{health?.status ?? 'offline'}</strong>
                 </div>
                 <div className="metric-card">
-                    <Activity size={20} />
-                    <span>Runs</span>
-                    <strong>{runs.length}</strong>
+                    <Database size={20} />
+                    <span>Database</span>
+                    <strong>{health?.db.status ?? 'unknown'}</strong>
                 </div>
                 <div className="metric-card">
-                    <Wrench size={20} />
-                    <span>Enabled tools</span>
-                    <strong>
-                        {enabledTools}/{tools.length}
-                    </strong>
-                </div>
-                <div className="metric-card">
-                    <Cpu size={20} />
-                    <span>Enabled skills</span>
-                    <strong>
-                        {enabledSkills}/{skills.length}
-                    </strong>
+                    <PlugZap size={20} />
+                    <span>MCP</span>
+                    <strong>{health?.mcpStatus ?? 'placeholder'}</strong>
                 </div>
             </div>
 
@@ -59,20 +36,16 @@ export function DashboardPage({ health, runs, tools, skills, settings }: Dashboa
                 <h2>Current Runtime</h2>
                 <dl className="detail-grid">
                     <div>
-                        <dt>Model</dt>
-                        <dd>{settings?.model ?? 'not loaded'}</dd>
-                    </div>
-                    <div>
-                        <dt>OpenAI</dt>
-                        <dd>{settings?.openAiConfigured ? 'configured' : 'missing key'}</dd>
+                        <dt>Config DB</dt>
+                        <dd>{health?.db.configured ? 'configured' : 'not configured'}</dd>
                     </div>
                     <div>
                         <dt>MCP</dt>
-                        <dd>{settings?.mcpStatus ?? 'placeholder'}</dd>
+                        <dd>{health?.mcpStatus ?? 'placeholder'}</dd>
                     </div>
                     <div>
-                        <dt>Completed runs</dt>
-                        <dd>{completedRuns}</dd>
+                        <dt>Last health check</dt>
+                        <dd>{health?.timestamp ?? 'not loaded'}</dd>
                     </div>
                 </dl>
             </div>

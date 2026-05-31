@@ -42,6 +42,10 @@ export type AgentSettings = {
 export type HealthResponse = {
     name: string;
     status: string;
+    db: {
+        configured: boolean;
+        status: 'ok' | 'unavailable' | 'not_configured';
+    };
     mcpStatus: string;
     timestamp: string;
 };

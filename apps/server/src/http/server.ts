@@ -1,7 +1,11 @@
 import Fastify from 'fastify';
 import type { FastifyInstance } from 'fastify';
 
+import { isDbConfigured } from '../config/postgres.js';
+import { migrateConfigTables } from '../db/migrate.js';
+import { cfgSvc } from '../db/service/index.js';
 import { env } from '../env.js';
+import { logger } from '../observability/logger.js';
 import { registerRoutes } from './routes.js';
 
 function getStatusCode(error: unknown): number {
@@ -24,7 +28,7 @@ export async function buildServer(): Promise<FastifyInstance> {
 
     app.addHook('onRequest', async (request, reply) => {
         reply.header('access-control-allow-origin', env.ADMIN_ORIGIN);
-        reply.header('access-control-allow-methods', 'GET,POST,OPTIONS');
+        reply.header('access-control-allow-methods', 'GET,POST,PATCH,DELETE,OPTIONS');
         reply.header('access-control-allow-headers', 'content-type,authorization');
 
         if (request.method === 'OPTIONS') {
@@ -41,6 +45,15 @@ export async function buildServer(): Promise<FastifyInstance> {
             statusCode,
         });
     });
+
+    if (isDbConfigured() && env.DATABASE_MIGRATE_ON_START) {
+        try {
+            await migrateConfigTables();
+            await cfgSvc.seedBase();
+        } catch (error) {
+            logger.warn({ error }, 'config migration/seed skipped');
+        }
+    }
 
     await registerRoutes(app);
     return app;

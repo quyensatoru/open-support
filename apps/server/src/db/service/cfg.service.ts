@@ -1,4 +1,5 @@
 import { agentSvc } from './agent.service.js';
+import { seedConfigDefaults } from './config.service.js';
 import { llmSvc } from './llm.service.js';
 
 export const makeCfgSvc = (llms = llmSvc, agents = agentSvc) => ({
@@ -8,6 +9,7 @@ export const makeCfgSvc = (llms = llmSvc, agents = agentSvc) => ({
     seedBase: async () => {
         const llm = await llms.seedEnv();
         const agent = await agents.seedDefault(llm.key);
+        await seedConfigDefaults({ defaultAgentId: agent.id });
         return { llm, agent };
     },
 });

@@ -1,39 +1,19 @@
-import { Activity, Bot, Cpu, FileText, Gauge, Settings, Shield, Wrench } from 'lucide-react';
+import { Bot, Cpu, Gauge } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { agentApi } from '../api/client';
-import type {
-    AgentRun,
-    AgentSettings,
-    HealthResponse,
-    SkillDefinition,
-    ToolDefinition,
-} from '../api/types';
+import type { HealthResponse } from '../api/types';
 import { DashboardPage } from '../pages/DashboardPage';
-import { LogsPage } from '../pages/LogsPage';
-import { RunsPage } from '../pages/RunsPage';
-import { SettingsPage } from '../pages/SettingsPage';
-import { SkillsPage } from '../pages/SkillsPage';
-import { ToolsPage } from '../pages/ToolsPage';
 
-type PageKey = 'dashboard' | 'runs' | 'tools' | 'skills' | 'settings' | 'logs';
+type PageKey = 'dashboard';
 
 const NAV_ITEMS: Array<{ key: PageKey; label: string; icon: typeof Gauge }> = [
     { key: 'dashboard', label: 'Dashboard', icon: Gauge },
-    { key: 'runs', label: 'Runs', icon: Activity },
-    { key: 'tools', label: 'Tools', icon: Wrench },
-    { key: 'skills', label: 'Skills', icon: Shield },
-    { key: 'settings', label: 'Settings', icon: Settings },
-    { key: 'logs', label: 'Logs', icon: FileText },
 ];
 
 export function App() {
     const [activePage, setActivePage] = useState<PageKey>('dashboard');
     const [health, setHealth] = useState<HealthResponse | null>(null);
-    const [settings, setSettings] = useState<AgentSettings | null>(null);
-    const [runs, setRuns] = useState<AgentRun[]>([]);
-    const [tools, setTools] = useState<ToolDefinition[]>([]);
-    const [skills, setSkills] = useState<SkillDefinition[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -41,18 +21,8 @@ export function App() {
         setLoading(true);
         setError(null);
         try {
-            const [nextHealth, nextSettings, nextRuns, nextTools, nextSkills] = await Promise.all([
-                agentApi.health(),
-                agentApi.settings(),
-                agentApi.runs(),
-                agentApi.tools(),
-                agentApi.skills(),
-            ]);
+            const nextHealth = await agentApi.health();
             setHealth(nextHealth);
-            setSettings(nextSettings);
-            setRuns(nextRuns);
-            setTools(nextTools);
-            setSkills(nextSkills);
         } catch (requestError) {
             setError(
                 requestError instanceof Error ? requestError.message : 'Unable to load agent data',
@@ -66,42 +36,12 @@ export function App() {
         void refresh();
     }, [refresh]);
 
-    async function createRun(message: string) {
-        await agentApi.createRun({ message });
-        await refresh();
-    }
-
     const page = useMemo(() => {
         switch (activePage) {
             case 'dashboard':
-                return (
-                    <DashboardPage
-                        health={health}
-                        runs={runs}
-                        tools={tools}
-                        skills={skills}
-                        settings={settings}
-                    />
-                );
-            case 'runs':
-                return (
-                    <RunsPage
-                        runs={runs}
-                        loading={loading}
-                        onRefresh={() => void refresh()}
-                        onCreateRun={createRun}
-                    />
-                );
-            case 'tools':
-                return <ToolsPage tools={tools} />;
-            case 'skills':
-                return <SkillsPage skills={skills} />;
-            case 'settings':
-                return <SettingsPage settings={settings} />;
-            case 'logs':
-                return <LogsPage runs={runs} />;
+                return <DashboardPage health={health} />;
         }
-    }, [activePage, health, loading, refresh, runs, settings, skills, tools]);
+    }, [activePage, health]);
 
     return (
         <div className="admin-shell">

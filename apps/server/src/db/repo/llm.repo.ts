@@ -3,7 +3,7 @@ import { and, asc, eq } from 'drizzle-orm';
 import { db, type Db } from '../../config/postgres.js';
 import { llms, type Llm, type NewLlm } from '../schema/index.js';
 
-export type LlmPatch = Partial<Omit<NewLlm, 'id' | 'createdAt' | 'updatedAt'>>;
+export type LlmPatch = Partial<Omit<NewLlm, 'id' | 'createdAt'>>;
 
 const take = (row: Llm | undefined): Llm => {
     if (!row) {

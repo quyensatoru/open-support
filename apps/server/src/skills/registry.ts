@@ -10,7 +10,7 @@ const SKILL_DEFINITIONS: SkillDefinition[] = [
             'Default internal operations skill for running and inspecting agent workflows.',
         instructions:
             'Use available local tools only. Treat MCP as unavailable until the placeholder is replaced.',
-        toolIds: ['time.now', 'system.find_code'],
+        toolIds: ['time.now', 'code.grep', 'code.context', 'code.insight'],
         enabled: true,
     },
     {

@@ -12,7 +12,8 @@ export const LlmInputSchema = z.object({
     provider: z.string().trim().min(1).max(40),
     model: z.string().trim().min(1).max(120),
     baseUrl: z.string().trim().url().optional(),
-    apiKey: z.string().trim().min(1).max(120),
+    apiKey: z.string().trim().min(1).max(240).nullable().optional(),
+    apiKeyRef: z.string().trim().min(1).max(240).nullable().optional(),
     temp: z.number().min(0).max(2).default(0),
     topP: z.number().min(0).max(1).optional(),
     maxTokens: z.number().int().positive().optional(),
@@ -24,10 +25,11 @@ export type LlmInput = z.input<typeof LlmInputSchema>;
 
 const clean = (input: LlmInput): NewLlm => {
     const data = LlmInputSchema.parse(input);
+    const { apiKey, apiKeyRef, ...rest } = data;
     return {
-        ...data,
+        ...rest,
         baseUrl: data.baseUrl ?? null,
-        apiKey: data.apiKey ?? null,
+        apiKey: apiKeyRef ?? apiKey ?? null,
         topP: data.topP ?? null,
         maxTokens: data.maxTokens ?? null,
     };
@@ -40,7 +42,7 @@ export const makeLlmSvc = (repo = makeLlmRepo()) => ({
     byId: repo.byId,
     byKey: repo.byKey,
     find: repo.find,
-    set: (id: string, patch: LlmPatch) => repo.set(id, patch),
+    set: (id: string, patch: LlmPatch) => repo.set(id, { ...patch, updatedAt: new Date() }),
     del: repo.del,
 
     seedEnv: () =>
@@ -50,7 +52,7 @@ export const makeLlmSvc = (repo = makeLlmRepo()) => ({
                 name: 'OpenAI',
                 provider: 'openai',
                 model: env.OPENAI_MODEL,
-                apiKey: env.OPENAI_API_KEY,
+                apiKeyRef: env.OPENAI_API_KEY ? 'env:OPENAI_API_KEY' : null,
                 temp: 0,
                 enabled: Boolean(env.OPENAI_API_KEY),
             }),

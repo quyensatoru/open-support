@@ -1,26 +1,27 @@
 import type { FastifyInstance } from 'fastify';
-import { env } from '../env.js';
+import { checkDbConnection, isDbConfigured } from '../config/postgres.js';
 import { registerMcpPlaceholder } from '../mcp/server.js';
-import { listSkills } from '../skills/registry.js';
-import { listTools } from '../tools/registry.js';
+import { registerConfigRoutes } from './routes/config/index.js';
+import { registerSupportRoutes } from './routes/support.js';
 
 export async function registerRoutes(app: FastifyInstance): Promise<void> {
-    app.get('/health', async () => ({
-        name: 'mida-agent',
-        status: 'ok',
-        mcpStatus: 'placeholder',
-        timestamp: new Date().toISOString(),
-    }));
+    app.get('/health', async () => {
+        const dbConfigured = isDbConfigured();
+        const dbOk = await checkDbConnection();
 
-    app.get('/v1/settings', async () => ({
-        model: env.OPENAI_MODEL,
-        openAiConfigured: Boolean(env.OPENAI_API_KEY),
-        langSmithTracing: env.LANGSMITH_TRACING,
-        playwrightHeadless: env.PLAYWRIGHT_HEADLESS,
-        mcpStatus: 'placeholder',
-    }));
+        return {
+            name: 'mida-agent',
+            status: 'ok',
+            db: {
+                configured: dbConfigured,
+                status: dbConfigured ? (dbOk ? 'ok' : 'unavailable') : 'not_configured',
+            },
+            mcpStatus: 'placeholder',
+            timestamp: new Date().toISOString(),
+        };
+    });
 
-    app.get('/v1/tools', async () => listTools());
-    app.get('/v1/skills', async () => listSkills());
+    await registerConfigRoutes(app);
+    await registerSupportRoutes(app);
     await registerMcpPlaceholder(app);
 }

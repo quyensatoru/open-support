@@ -23,7 +23,7 @@ export const llms = pgTable(
         provider: varchar('provider', { length: 40 }).notNull(),
         model: varchar('model', { length: 120 }).notNull(),
         baseUrl: text('base_url'),
-        apiKey: varchar('api_key', { length: 120 }),
+        apiKey: varchar('api_key', { length: 240 }),
         temp: real('temp').notNull().default(0),
         topP: real('top_p'),
         maxTokens: integer('max_tokens'),

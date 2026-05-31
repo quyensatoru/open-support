@@ -3,7 +3,7 @@ import { asc, eq } from 'drizzle-orm';
 import { db, type Db } from '../../config/postgres.js';
 import { agents, llms, type Agent, type NewAgent } from '../schema/index.js';
 
-export type AgentPatch = Partial<Omit<NewAgent, 'id' | 'createdAt' | 'updatedAt'>>;
+export type AgentPatch = Partial<Omit<NewAgent, 'id' | 'createdAt'>>;
 export type AgentView = Agent & { llm: typeof llms.$inferSelect | null };
 
 const take = (row: Agent | undefined): Agent => {

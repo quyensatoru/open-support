@@ -65,10 +65,16 @@ export const makeAgentSvc = (repo = makeAgentRepo(), llms = makeLlmRepo()) => {
         viewByKey: repo.viewByKey,
         default: repo.default,
         set: async (id: string, patch: AgentPatch) => {
+            if (patch.llmId) {
+                const llm = await llms.byId(patch.llmId);
+                if (!llm) {
+                    throw new Error(`LLM not found: ${patch.llmId}`);
+                }
+            }
             if (patch.isDefault) {
                 await repo.clearDefault();
             }
-            return repo.set(id, patch);
+            return repo.set(id, { ...patch, updatedAt: new Date() } as AgentPatch);
         },
         del: repo.del,
 
